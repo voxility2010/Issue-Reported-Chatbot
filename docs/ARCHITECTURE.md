@@ -6,23 +6,25 @@
 
 ```
 USER (browser)
-   │
-   ▼
+  |
+  ▼
 FRONTEND — React chat UI (single HTML file, CDN React, no build step)
-   │  HTTP POST /api/chat  { session_id, message }
-   ▼
+  |   HTTP POST /api/chat  { session_id, message }
+  ▼
 BACKEND — FastAPI
-   ├── Conversation State Machine   (decides next question / next state)
-   ├── Issue Classifier             (rule-based keyword scoring; optional LLM call)
-   └── Ticket Generator             (assembles structured ticket JSON)
-   │
-   ▼
+  ├── Conversation State Machine   (decides next question / next state)
+  ├── Issue Classifier             (Groq API call — Llama 3.3 70B; classifies
+  |                                  issue category & extracts structured details)
+  └── Ticket Generator             (assembles structured ticket JSON)
+  |
+  ▼
 STORAGE — SQLite
-   ├── conversations table  (every user/bot turn, for audit & analytics)
-   └── tickets table        (final structured ticket, JSON + columns)
+  ├── conversations table   (every user/bot turn, for audit & analytics)
+  └── tickets table         (final structured ticket, JSON + columns)
 
-Optional: OpenAI API — only called if OPENAI_API_KEY is set in the environment,
-used to improve issue classification. The system works fully offline without it.
+Required: Groq API — GROQ_API_KEY must be set in the environment.
+Used for issue classification and detail extraction via Llama 3.3 70B.
+The app will not classify issues correctly without it.
 ```
 
 ## Conversation flow (state machine)
