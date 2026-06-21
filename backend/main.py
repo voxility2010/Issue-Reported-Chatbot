@@ -552,7 +552,13 @@ def _handle_message(session_id: str, user_text: str) -> str:
     if state == "AWAIT_USER_DETAILS":
         parsed = llm_parse_contact_message(text, {k: data[k] for k in FIELD_ORDER}) if text else None
 
-        gave_contact = bool(parsed and (parsed.get("name") or parsed.get("email")))
+        gave_contact = bool(
+            parsed and (
+                parsed.get("name") or
+                parsed.get("email") or
+                "@" in text
+            )
+        )
         wants_skip = bool(parsed and parsed.get("wants_to_skip"))
 
         if parsed:
@@ -564,7 +570,6 @@ def _handle_message(session_id: str, user_text: str) -> str:
             data["user_name"] = parsed.get("name") if parsed else None
             raw_email = parsed.get("email") if parsed else None
 
-            # fallback: agar LLM ne email miss kiya toh @ check
             if not raw_email and "@" in text:
                 raw_email = text.strip()
 
