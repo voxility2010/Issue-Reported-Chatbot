@@ -1,4 +1,4 @@
-# Issue Desk — Issue Reporting Chatbot
+# Issue Reporting Chatbot
 
 A chatbot prototype that helps users report issues they encounter in an application. It collects the issue description, page/module, error message, time of occurrence, and (optional) user contact details through a guided conversation, classifies the issue into a category using **Groq's Llama 3.3 70B**, generates a structured support ticket, and stores everything in a database.
 
