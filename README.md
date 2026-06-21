@@ -6,8 +6,6 @@ A chatbot prototype that helps users report issues they encounter in an applicat
 
 ---
 
-## Live Demo
-https://issue-reporter-chatbot.onrender.com
 ## Tech Stack
 
 | Layer          | Technology                                                          |
@@ -121,21 +119,6 @@ See `docs/ARCHITECTURE.md` for the full flow diagram and data model, and `docs/A
 
 ---
 
-## Deployment
-
-This is a **dynamic web service** (FastAPI backend + Groq API calls + SQLite writes) — not a static site. Deploy it on Render as a **Web Service** using the included `render.yaml` Blueprint.
-
-See `docs/DEPLOYMENT.md` for full step-by-step instructions. Quick version:
-
-1. Push this repo to GitHub (with `render.yaml` at the root).
-2. On Render: **New → Blueprint** → select this repo.
-3. When prompted, paste your `GROQ_API_KEY` (kept secret, not committed to the repo).
-4. Click **Apply** — Render installs dependencies and starts the Uvicorn server automatically.
-5. Visit the generated `https://<your-app>.onrender.com` URL.
-
-> Free-tier Render services sleep after 15 minutes of inactivity — the first request after sleep may take 30–50 seconds to wake up. This is expected.
-
----
 
 ## Tests Performed
 
