@@ -2,31 +2,38 @@
 
 ## Assumptions made
 
-1. **No mandatory paid API key.** The brief suggests an LLM, but a prototype
-   that hard-requires a paid key is hard to evaluate/demo. The classifier
-   defaults to a rule-based keyword matcher and only calls OpenAI if
-   `OPENAI_API_KEY` is present, so the project runs end-to-end for free.
-2. **Lightweight regex extraction, not full NLU.** The bot scans the user's
-   first message for page/module mentions, error codes, and time phrases and
-   skips those questions if found — but this is pattern matching (e.g. "on
-   the X page", "error 500", "yesterday"), not a general-purpose language
-   understanding model. Phrasing outside these patterns won't be picked up,
-   and it will simply ask the question normally in that case.
+1. **Groq (Llama 3.3 70B) is required.** A valid `GROQ_API_KEY` must be set
+   in `backend/.env` for the chatbot to function. Without it, the LLM calls
+   return `None` and the bot falls back to safe defaults — but classification,
+   extraction, and intent detection will not work correctly. The key is free
+   to obtain at [console.groq.com](https://console.groq.com).
+
+2. **LLM does extraction only — Python owns the conversation flow.** The
+   state machine in `main.py` decides what question to ask next and when to
+   move states. Groq is called purely for classification and structured field
+   extraction (page/module, error message, time of occurrence). The LLM never
+   composes questions or drives the dialogue — this prevents it from going
+   rogue with sub-questions or skipping steps.
+
 3. **Single-process, in-memory session state.** Session state (`SESSIONS`
    dict) lives in the FastAPI process's memory. Restarting the server loses
-   in-progress (unsubmitted) conversations, though every raw message is
-   still logged to SQLite. Acceptable for a prototype; not for production.
-4. **No authentication.** Anyone can open the chat and create tickets. There's
-   no login system, rate limiting, or spam protection.
-5. **SQLite over PostgreSQL.** SQLite was used instead of PostgreSQL (the
-   suggested alternative) to keep the project runnable with zero external
-   setup. The schema is simple enough to port directly to PostgreSQL.
-6. **Email/name validation is minimal.** The optional "user details" field
-   just checks for an `@` to decide if it looks like an email; no real
-   validation or verification is performed.
-7. **Single category per ticket.** Issues are assumed to fall into exactly
-   one category; multi-label classification is out of scope for the prototype.
+   in-progress (unsubmitted) conversations, though every raw message is still
+   logged to SQLite. Acceptable for a prototype; not for production.
 
+4. **No authentication.** Anyone can open the chat and create tickets. There
+   is no login system, rate limiting, or spam protection.
+
+5. **SQLite over PostgreSQL.** Used to keep the project runnable with zero
+   external setup. The schema is straightforward to port directly to
+   PostgreSQL when needed.
+
+6. **Contact info validation is minimal.** The LLM extracts name and email
+   as typed — no format validation, deliverability check, or verification is
+   performed.
+
+7. **Single category per ticket.** Issues are classified into exactly one of
+   seven categories. Multi-label classification is out of scope for this
+   prototype.
 ## Future improvements
 
 - **LLM-based slot extraction**: the current regex extraction (page/module,
