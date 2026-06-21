@@ -389,6 +389,17 @@ def _reset_to_description(session: dict):
 
 
 def build_summary(data: dict) -> str:
+    name = data.get("user_name")
+    email = data.get("user_email")
+    if name and email:
+        contact = f"{name} ({email})"
+    elif email:
+        contact = email
+    elif name:
+        contact = name
+    else:
+        contact = "Not provided"
+
     return (
         "Here's a summary of your report:\n\n"
         f"**Category:** {data['category']}\n"
@@ -396,7 +407,7 @@ def build_summary(data: dict) -> str:
         f"**Page/Module:** {data['page_module'] or 'Not specified'}\n"
         f"**Error message:** {data['error_message'] or 'None reported'}\n"
         f"**Time of occurrence:** {data['occurred_at'] or 'Not specified'}\n"
-        f"**Contact:** {data['user_name'] or 'Not provided'}"
+        f"**Contact:** {contact}"
     )
 
 
