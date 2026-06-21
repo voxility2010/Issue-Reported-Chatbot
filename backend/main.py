@@ -548,7 +548,7 @@ def _handle_message(session_id: str, user_text: str) -> str:
                      "support team can follow up? (Optional — type 'skip' to leave it out)")
         return "Got it, thanks!\n\n" + contact_q
 
-    # ── AWAIT_USER_DETAILS ────────────────────────────────────────────────
+   # ── AWAIT_USER_DETAILS ────────────────────────────────────────────────
     if state == "AWAIT_USER_DETAILS":
         parsed = llm_parse_contact_message(text, {k: data[k] for k in FIELD_ORDER}) if text else None
 
@@ -562,7 +562,13 @@ def _handle_message(session_id: str, user_text: str) -> str:
 
         if gave_contact or wants_skip or not parsed:
             data["user_name"] = parsed.get("name") if parsed else None
-            data["user_email"] = parsed.get("email") if parsed else None
+            raw_email = parsed.get("email") if parsed else None
+
+            # fallback: agar LLM ne email miss kiya toh @ check
+            if not raw_email and "@" in text:
+                raw_email = text.strip()
+
+            data["user_email"] = raw_email
             session["state"] = "CONFIRM"
             return build_summary(data) + "\n\nShall I go ahead and file this ticket? (yes/no)"
 
