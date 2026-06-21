@@ -1,0 +1,14 @@
+# Secrets
+backend/.env
+
+# Database (generated locally)
+backend/chatbot.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
