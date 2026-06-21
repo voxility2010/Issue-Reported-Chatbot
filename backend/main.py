@@ -387,7 +387,6 @@ def _reset_to_description(session: dict):
     session["accumulated_description"] = ""
     session["state"] = "AWAIT_DESCRIPTION"
 
-
 def build_summary(data: dict) -> str:
     name = data.get("user_name")
     email = data.get("user_email")
@@ -559,7 +558,7 @@ def _handle_message(session_id: str, user_text: str) -> str:
                      "support team can follow up? (Optional — type 'skip' to leave it out)")
         return "Got it, thanks!\n\n" + contact_q
 
-   # ── AWAIT_USER_DETAILS ────────────────────────────────────────────────
+# ── AWAIT_USER_DETAILS ────────────────────────────────────────────────
     if state == "AWAIT_USER_DETAILS":
         parsed = llm_parse_contact_message(text, {k: data[k] for k in FIELD_ORDER}) if text else None
 
