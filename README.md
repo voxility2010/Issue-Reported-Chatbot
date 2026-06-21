@@ -5,9 +5,6 @@ A chatbot prototype that helps users report issues they encounter in an applicat
 ![Architecture Diagram](docs/architecture-diagram.svg)
 
 ---
-## Issue Reporter Chatbot
-
-Live Demo: https://issue-reporter-chatbot.onrender.com
 
 ## Live Demo
 https://issue-reporter-chatbot.onrender.com
