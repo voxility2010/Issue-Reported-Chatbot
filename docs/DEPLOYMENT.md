@@ -25,8 +25,7 @@ automatically ("Infrastructure as Code"). No Docker required.
    - Select the repository you just pushed.
    - Render will detect `render.yaml` and pre-fill the service config
      (build command, start command, free plan).
-   - Leave `OPENAI_API_KEY` blank unless you want LLM-based classification —
-     the app works fully without it.
+   - Enter `GROQ API KEY` value 
    - Click **Apply** / **Create Web Service**.
 
 4. **Wait for the build** (1–3 minutes on the free tier). Render will show
