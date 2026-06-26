@@ -128,6 +128,23 @@ FIELD_GENTLE = {
     "occurred_at":   "Any idea when this started? Even 'yesterday' or 'a few hours ago' helps. Type 'skip' if not sure.",
 }
 
+# Phrases that signal the user wants to abandon the current report and start
+# completely fresh. Kept as multi-word phrases on purpose so things like
+# "cancel button not working" don't accidentally trigger a reset.
+CANCEL_PATTERNS = [
+    "cancel the conversation", "cancel this conversation", "cancel conversation",
+    "start over", "let's start over", "lets start over", "restart the conversation",
+    "restart this", "start again", "let's start again", "lets start again",
+    "reset this", "reset the conversation", "reset everything", "scrap this",
+    "forget this", "forget everything", "cancel this", "stop this conversation",
+    "begin again", "can we start over", "can we restart",
+]
+
+
+def wants_to_cancel(text: str) -> bool:
+    t = text.lower().strip()
+    return any(p in t for p in CANCEL_PATTERNS)
+
 
 def new_session() -> dict:
     return {
@@ -194,10 +211,15 @@ def llm_understand_description(text: str) -> dict:
         "If user_wants_to_end=true, warmly say goodbye. Otherwise greet naturally and ask what's wrong.\n\n"
         "clean_description: restate the issue clearly in 1-2 sentences, fixing typos. "
         "Empty string if is_real_description=false.\n\n"
-        "page_module: capture FULL location context — feature + parent page if implied. "
+        "page_module: capture an ACTUAL page, screen, or feature NAME ONLY. "
         "Examples: 'dashboard is stuck' → 'Dashboard'. "
         "'daily streak not updating' → 'Daily Streak on Dashboard'. "
-        "'checkout keeps failing' → 'Checkout'. 'can't log in' → 'Login page'.\n\n"
+        "'checkout keeps failing' → 'Checkout'. 'can't log in' → 'Login page'.\n"
+        "Do NOT treat purely positional/visual descriptions as page_module — "
+        "'top right button', 'that purple button', 'the icon in the corner', "
+        "'the button on the left' are NOT page/module names. If the user only gives "
+        "a position or appearance with no actual named page or feature, leave "
+        "page_module null so we ask them properly.\n\n"
         "error_message: ONLY an actual error message, error code, or alert/toast text shown "
         "on screen — e.g. '404 Not Found', 'Network Error', 'Payment Declined'. Do NOT use "
         "general symptom words like 'stuck', 'frozen', 'slow', 'not moving', 'not working' — "
@@ -230,7 +252,9 @@ def llm_extract_fields(description: str, known_fields: dict, missing_fields: lis
         return {"field_updates": {}}
 
     field_hints = {
-        "page_module": "which page/screen/feature the issue happened on (include parent page if implied)",
+        "page_module": "the actual page/screen/feature NAME (e.g. 'Dashboard', 'Checkout', "
+                       "'Settings', include parent page if implied) — NOT a position or visual "
+                       "description like 'top right', 'that button', 'the purple icon'",
         "error_message": "any error message, code, or symptom description (frozen, crash, blank screen etc.)",
         "occurred_at":   "when it happened — any time reference counts",
     }
@@ -257,7 +281,11 @@ def llm_extract_fields(description: str, known_fields: dict, missing_fields: lis
         "NEVER return a value for ALREADY-KNOWN fields — they are resolved, leave them null. "
         "If user's answer is vague but present (e.g. 'yesterday', 'some error', 'frozen'), "
         "accept it — do NOT return null just because it's imprecise. "
-        "page_module: capture full context (feature + parent page) when implied.\n"
+        "page_module: capture full context (feature + parent page) when implied, but it must "
+        "be an actual page/feature NAME. Reject purely positional/visual phrases with no real "
+        "page or feature name — e.g. 'top right corner', 'that purple button', 'the icon on "
+        "the left' do NOT count as a page_module value; return null for page_module if that's "
+        "all the user gave, so Python can ask them properly for the actual page/screen.\n"
         "error_message: only count it if the user names a SPECIFIC message/code distinct from "
         "the general symptom already known. If they just repeat 'frozen'/'stuck'/'not working' "
         "(already captured in the description), treat that as SKIP — there's no new error info, "
@@ -429,6 +457,14 @@ def _handle_message(session_id: str, user_text: str) -> str:
     state = session["state"]
     data = session["data"]
     text = user_text.strip()
+
+    # ── Global cancel/restart intent ────────────────────────────────────
+    # If the user explicitly asks to cancel/restart mid-conversation, wipe
+    # everything and go back to the very beginning, regardless of state.
+    if state not in ("GREETING", "ENDED") and text and wants_to_cancel(text):
+        _reset_to_description(session)
+        return ("No problem, I've cancelled that and started fresh. 🔄\n\n"
+                "Could you briefly describe the problem you're facing?")
 
     # ── GREETING ──────────────────────────────────────────────────────────
     if state == "GREETING":
