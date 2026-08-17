@@ -4,14 +4,14 @@
 
 ### Guided AI-Powered Issue Reporting & Support Ticket Generation
 
-*A chatbot prototype that helps users report issues they encounter in an application through a guided conversation, classifies the issue using Groq's Llama 3.3 70B, generates a structured support ticket, and stores everything in a database.*
+*A chatbot prototype that helps users report issues they encounter in an application. It collects the issue description, page/module, error message, time of occurrence, and optional user contact details through a guided conversation, classifies the issue using Groq's Llama 3.3 70B, generates a structured support ticket, and stores everything in SQLite.*
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-![React](https://img.shields.io/badge/Frontend-React%2018-61DAFB.svg)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)
-![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg)
+![React](https://img.shields.io/badge/frontend-React%2018-61DAFB.svg)
+![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688.svg)
+![SQLite](https://img.shields.io/badge/database-SQLite-003B57.svg)
 ![Groq](https://img.shields.io/badge/AI-Groq%20Llama%203.3%2070B-orange.svg)
-![Server](https://img.shields.io/badge/Server-Uvicorn-purple.svg)
+![Uvicorn](https://img.shields.io/badge/server-Uvicorn-purple.svg)
 
 </div>
 
@@ -25,7 +25,7 @@
 | 💬 **Interaction** | Guided conversational issue reporting |
 | 🖥️ **Frontend** | React 18 via CDN + plain CSS |
 | ⚙️ **Backend** | Python 3.10+ + FastAPI |
-| 🗄️ **Database** | SQLite |
+| 🗄️ **Database** | SQLite (file-based, zero setup) |
 | 🚀 **Server** | Uvicorn (ASGI) |
 | 🎫 **Output** | Structured support ticket + conversation transcript |
 | 🔑 **API requirement** | Groq API key |
@@ -48,18 +48,18 @@ FastAPI Backend
  ▼
 Conversation Engine
  │
- ├── Issue description
+ ├── Collect issue description
  │
  ├── Groq classification
  │      └── Llama 3.3 70B
  │
- ├── Page / module
+ ├── Collect page / module
  │
- ├── Error message
+ ├── Collect error message
  │
- ├── Time of occurrence
+ ├── Collect time of occurrence
  │
- └── Optional contact details
+ └── Collect optional contact details
  │
  ▼
 Structured Issue Summary
@@ -168,11 +168,13 @@ uvicorn main:app --reload --port 8000
 
 ### 5. Open the app
 
-Visit **http://127.0.0.1:8000** in your browser. The chat UI is served directly by the backend, so there's nothing else to start.
+Visit **http://127.0.0.1:8000** in your browser.
+
+The chat UI is served directly by the backend, so there's nothing else to start.
 
 ---
 
-## 🚀 5. Usage
+## 🚀 5. How It Works
 
 1. Open the page — the bot greets you and asks you to describe the issue.
 2. As soon as you describe it, the bot uses Groq (Llama 3.3 70B) to classify the issue (Login Issue, Payment Issue, Technical Bug, Feature Request, Performance Issue, UI/UX Issue, or Other) and asks where it happened.
@@ -184,17 +186,17 @@ Visit **http://127.0.0.1:8000** in your browser. The chat UI is served directly 
 
 ## 🧠 6. Issue Classification
 
-The chatbot uses **Groq's Llama 3.3 70B** to classify the reported issue into a category:
+The chatbot uses **Groq's Llama 3.3 70B** to classify the reported issue into a category and extract relevant details from the natural conversation.
 
-- Login Issue
-- Payment Issue
-- Technical Bug
-- Feature Request
-- Performance Issue
-- UI/UX Issue
-- Other
-
-It also extracts relevant details from the natural conversation.
+| Category |
+|---|
+| 🔐 **Login Issue** |
+| 💳 **Payment Issue** |
+| 🐛 **Technical Bug** |
+| ✨ **Feature Request** |
+| ⚡ **Performance Issue** |
+| 🎨 **UI/UX Issue** |
+| 📌 **Other** |
 
 ---
 
@@ -202,7 +204,9 @@ It also extracts relevant details from the natural conversation.
 
 After collecting the required information, the chatbot displays a full structured summary and asks the user for confirmation.
 
-Once confirmed, a ticket is generated, for example:
+Once confirmed, a ticket is generated.
+
+Example:
 
 ```text
 TCK-93CC5F49
@@ -256,6 +260,12 @@ The conversation flow was exercised end-to-end via the API (see `docs/ARCHITECTU
 | Ticket creation and ID generation | ✅ |
 | Correct persistence of tickets and transcripts to SQLite | ✅ |
 
+<div align="center">
+
+**🎉 End-to-end conversation flow verified**
+
+</div>
+
 ---
 
 ## 📚 10. Documentation
@@ -271,7 +281,15 @@ Additional documentation is available in the `docs/` directory:
 
 ---
 
-## 📋 11. More Info
+## 🌐 11. Deployment
+
+The repository includes a `render.yaml` configuration for a one-click Render Blueprint deployment.
+
+The application can also be run locally using the setup instructions above.
+
+---
+
+## 📋 12. More Info
 
 | | |
 |---|---|
@@ -282,6 +300,7 @@ Additional documentation is available in the `docs/` directory:
 | 🚀 **Server** | Uvicorn |
 | 🔑 **API** | Groq API |
 | 🎫 **Output** | Structured support tickets + transcripts |
+| 📖 **Documentation** | Architecture, assumptions/future, deployment |
 
 ---
 
